@@ -137,16 +137,14 @@ public class PSPlayerListener implements Listener {
 			    plugin.getForceFieldManager().enableFieldsOnLogon(playerName);
 			    plugin.getForceFieldManager().removeFieldsIfNoPermission(playerName);
 
-			    List<PurchaseEntry> purchases = plugin.getStorageManager().getPendingPurchases(playerName);
-
-			    for (PurchaseEntry purchase : purchases) {
+			    for (PurchaseEntry purchase : plugin.getStorageManager().getPendingPurchases(playerName)) {
 				    new BuyingModule().giveMoney(player, purchase);
 				    plugin.getStorageManager().deletePendingPurchasePayment(purchase);
 			    }
 
-			    if (event.getPlayer().isOp()) {
+			    if (player.isOp()) {
 				    for (String message : plugin.getMessages()) {
-					    event.getPlayer().sendMessage(ChatColor.YELLOW + message);
+					    player.sendMessage(ChatColor.YELLOW + message);
 				    }
 			    }
 		    }

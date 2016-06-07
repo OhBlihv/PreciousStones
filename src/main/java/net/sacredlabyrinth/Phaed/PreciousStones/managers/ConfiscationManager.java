@@ -111,7 +111,8 @@ public class ConfiscationManager {
         if (!confiscated.isEmpty() || helmet != null || chestplate != null || leggings != null || boots != null) {
             PlayerEntry entry = plugin.getPlayerManager().getPlayerEntry(player);
             entry.confiscate(confiscated, helmet, chestplate, leggings, boots);
-            plugin.getStorageManager().updatePlayer(player.getName());
+            //plugin.getStorageManager().updatePlayer(player.getName());
+			plugin.getStorageManager().offerPlayer(player.getName()); //Don't double up on updates
             player.updateInventory();
 
             String msg = "";
@@ -163,7 +164,8 @@ public class ConfiscationManager {
         ItemStackEntry leggings = entry.returnLeggings();
         ItemStackEntry boots = entry.returnBoots();
 
-        plugin.getStorageManager().updatePlayer(player.getName());
+        //plugin.getStorageManager().updatePlayer(player.getName());
+		plugin.getStorageManager().offerPlayer(player.getName()); //Don't double up on updates
         player.updateInventory();
 
         if (helmet != null) {

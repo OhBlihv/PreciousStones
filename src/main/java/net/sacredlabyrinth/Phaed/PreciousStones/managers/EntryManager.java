@@ -233,9 +233,7 @@ public final class EntryManager {
             EntryFields ef = entriesByPlayer.get(player.getName());
 
             if (ef != null) {
-                List<Field> e = new ArrayList<Field>();
-                e.addAll(ef.getFields());
-                return e;
+	            return new ArrayList<>(ef.getFields());
             }
         }
 

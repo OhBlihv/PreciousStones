@@ -65,8 +65,7 @@ public class PlayerManager {
 	 * @param uuid
 	 * @return
 	 */
-	public PlayerEntry getPlayerEntry(String playerName, UUID uuid)
-	{
+	public PlayerEntry getPlayerEntry(String playerName, UUID uuid) {
 		// look for player in memory
 		PlayerEntry data = players.get(playerName.toLowerCase());
 

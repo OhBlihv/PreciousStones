@@ -113,8 +113,7 @@ public class PSPlayerListener implements Listener {
      * @param event
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onPlayerPreJoin(AsyncPlayerPreLoginEvent event){
-
+    public void onPlayerPreJoin(AsyncPlayerPreLoginEvent event) {
 	    final String playerName = event.getName();
 	    final UUID playerUuid = event.getUniqueId();
 
@@ -124,27 +123,35 @@ public class PSPlayerListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerJoin(PlayerJoinEvent event) {
-
 	    final Player player = event.getPlayer();
 	    final String playerName = player.getName();
 
-        plugin.getEntryManager().reevaluateEnteredFields(player);
+	    Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable()
+	    {
 
-        plugin.getForceFieldManager().enableFieldsOnLogon(playerName);
-        plugin.getForceFieldManager().removeFieldsIfNoPermission(playerName);
+		    @Override
+		    public void run()
+		    {
+			    plugin.getEntryManager().reevaluateEnteredFields(player);
 
-        List<PurchaseEntry> purchases = plugin.getStorageManager().getPendingPurchases(playerName);
+			    plugin.getForceFieldManager().enableFieldsOnLogon(playerName);
+			    plugin.getForceFieldManager().removeFieldsIfNoPermission(playerName);
 
-        for (PurchaseEntry purchase : purchases) {
-            new BuyingModule().giveMoney(player, purchase);
-            plugin.getStorageManager().deletePendingPurchasePayment(purchase);
-        }
+			    List<PurchaseEntry> purchases = plugin.getStorageManager().getPendingPurchases(playerName);
 
-        if (event.getPlayer().isOp()) {
-            for (String message : plugin.getMessages()) {
-                event.getPlayer().sendMessage(ChatColor.YELLOW + message);
-            }
-        }
+			    for (PurchaseEntry purchase : purchases) {
+				    new BuyingModule().giveMoney(player, purchase);
+				    plugin.getStorageManager().deletePendingPurchasePayment(purchase);
+			    }
+
+			    if (event.getPlayer().isOp()) {
+				    for (String message : plugin.getMessages()) {
+					    event.getPlayer().sendMessage(ChatColor.YELLOW + message);
+				    }
+			    }
+		    }
+
+	    });
     }
 
     /**

@@ -55,29 +55,38 @@ public class PlayerManager {
      * @return
      */
     public PlayerEntry getPlayerEntry(Player player) {
-        // look for player in memory
-        String playerName = player.getName();
-        PlayerEntry data = players.get(playerName.toLowerCase());
-
-        // otherwise look in database
-        if (data == null) {
-            UUID uuid = player.getUniqueId();
-
-            data = plugin.getStorageManager().extractPlayer(uuid);
-            if (data == null) {
-                data = plugin.getStorageManager().extractPlayer(player.getName());
-            } else if (!playerName.equalsIgnoreCase(data.getName())) {
-                plugin.getStorageManager().migrate(data.getName(), playerName);
-                data.setName(playerName);
-            }
-            if (data == null) {
-                data = plugin.getStorageManager().createPlayer(playerName, uuid);
-            }
-            players.put(playerName.toLowerCase(), data);
-        }
-
-        return data;
+        return getPlayerEntry(player.getName(), player.getUniqueId());
     }
+
+	/**
+	 * Get a player's data file, will look up by UUID first, then name.
+	 *
+	 * @param playerName
+	 * @param uuid
+	 * @return
+	 */
+	public PlayerEntry getPlayerEntry(String playerName, UUID uuid)
+	{
+		// look for player in memory
+		PlayerEntry data = players.get(playerName.toLowerCase());
+
+		// otherwise look in database
+		if (data == null) {
+			data = plugin.getStorageManager().extractPlayer(uuid);
+			if (data == null) {
+				data = plugin.getStorageManager().extractPlayer(playerName);
+			} else if (!playerName.equalsIgnoreCase(data.getName())) {
+				plugin.getStorageManager().migrate(data.getName(), playerName);
+				data.setName(playerName);
+			}
+			if (data == null) {
+				data = plugin.getStorageManager().createPlayer(playerName, uuid);
+			}
+			players.put(playerName.toLowerCase(), data);
+		}
+
+		return data;
+	}
 
     /**
      * Player entry operations to do when player logs in
@@ -90,6 +99,19 @@ public class PlayerManager {
         PlayerEntry data = getPlayerEntry(player);
         data.setOnline(true);
     }
+
+	/**
+	 * Player entry operations to do when player logs in
+	 *
+	 * @param playerName
+	 * @param uuid
+	 */
+	public void playerLogin(String playerName, UUID uuid) {
+		//set online
+
+		PlayerEntry data = getPlayerEntry(playerName, uuid);
+		data.setOnline(true);
+	}
 
     /**
      * Set player as offline

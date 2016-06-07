@@ -1355,7 +1355,7 @@ public class StorageManager {
      * @param playerName
      */
     public void updatePlayer(String playerName) {
-        long time = (new DateTime()).getMillis();
+        long time = System.currentTimeMillis();
 
         PlayerEntry data = plugin.getPlayerManager().getPlayerEntry(playerName);
 

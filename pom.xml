@@ -5,8 +5,8 @@
 
     <groupId>net.sacredlabyrinth.Phaed</groupId>
     <artifactId>PreciousStones</artifactId>
-    <version>10.3.3</version>
-    <name>PreciousStones</name>
+    <version>10.3.6</version>
+    <name>PreciousStones-1.10</name>
     <url>http://dev.bukkit.org/server-mods/preciousstones/</url>
 
     <build>
@@ -76,9 +76,9 @@
                                          classpathref="maven.dependency.classpath" />
                                 <trycatch>
                                     <try>
-                                        <copy todir="C:\Minecraft\server\plugins/">
+                                        <copy todir="d:\Minecraft\server\plugins/">
                                             <fileset dir="${project.build.directory}">
-                                                <include name="*${project.name}.jar"/>
+                                                <include name="${project.name}.jar"/>
                                             </fileset>
                                         </copy>
                                     </try>
@@ -130,7 +130,7 @@
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
-            <version>1.9-R0.1-SNAPSHOT</version>
+            <version>1.10-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

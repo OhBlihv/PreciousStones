@@ -503,13 +503,17 @@ public class PSBlockListener implements Listener {
             }
         }
 
-        field.getHidingModule().unHide();
+        // prevent breaking hidden field
 
-        // now that it's unhidden it should pass this check, if not then no block for you
-
-        if (!plugin.getSettingsManager().isFieldType(block)) {
-            return false;
+        if (plugin.getSettingsManager().isPreventBreakingHidden()) {
+            if (field.getHidingModule().isHidden()) {
+                ChatHelper.send(player, "cannotBreakHidden");
+                event.setCancelled(true);
+                return true;
+            }
         }
+
+        field.getHidingModule().unHide();
 
         // cancel cuboid if still drawing it
 
@@ -564,14 +568,14 @@ public class PSBlockListener implements Listener {
         PreciousStones.debug("releasing field");
         event.setCancelled(true);
 
-        if (field.hasFlag(FieldFlag.SINGLE_USE)) {
-            plugin.getForceFieldManager().releaseWipe(block);
-        } else {
-            plugin.getForceFieldManager().release(block);
-        }
-
         plugin.getForceFieldManager().refundField(player, field);
         plugin.getVisualizationManager().revert(player);
+
+        if (field.hasFlag(FieldFlag.SINGLE_USE)) {
+            plugin.getForceFieldManager().releaseWipe(field);
+        } else {
+            plugin.getForceFieldManager().release(field);
+        }
     }
 
     /**

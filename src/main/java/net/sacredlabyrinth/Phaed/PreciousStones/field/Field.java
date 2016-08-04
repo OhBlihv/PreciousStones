@@ -1334,16 +1334,12 @@ public class Field extends AbstractVec implements Comparable<Field> {
         }
 
         PreciousStones.getInstance().getForceFieldManager().refundField(player, this);
-        PreciousStones.getInstance().getForceFieldManager().deleteField(this);
-        block.setType(Material.AIR);
+        PreciousStones.getInstance().getForceFieldManager().releaseWipe(this);
 
         ItemStack is = new ItemStack(type.getTypeId(), 1, (short) 0, type.getData());
 
         if (settings.hasMetaName()) {
-            ItemMeta meta = is.getItemMeta();
-            meta.setDisplayName(settings.getMetaName());
-            meta.setLore(settings.getMetaLore());
-            is.setItemMeta(meta);
+            StackHelper.setItemMeta(is, settings);
         }
 
         StackHelper.give(player, is);

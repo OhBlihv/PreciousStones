@@ -5,7 +5,7 @@
 
     <groupId>net.sacredlabyrinth.Phaed</groupId>
     <artifactId>PreciousStones</artifactId>
-    <version>10.5.0</version>
+    <version>10.5.3</version>
     <name>PreciousStones-1.11</name>
     <url>http://dev.bukkit.org/server-mods/preciousstones/</url>
 
@@ -104,6 +104,7 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+	                        <createDependencyReducedPom>false</createDependencyReducedPom>
                             <minimizeJar>true</minimizeJar>
                             <relocations>
                                 <relocation>
@@ -130,7 +131,7 @@
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
-            <version>1.11-R0.1-SNAPSHOT</version>
+            <version>1.11.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -214,7 +215,7 @@
         <dependency>
             <groupId>br.net.fabiozumbi12.RedProtect</groupId>
             <artifactId>RedProtect</artifactId>
-            <version>7.0.3</version>
+            <version>7.1.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

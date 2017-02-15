@@ -1355,7 +1355,7 @@ public class StorageManager {
      * @param playerName
      */
     public void updatePlayer(String playerName) {
-        long time = (new DateTime()).getMillis();
+        long time = System.currentTimeMillis();
 
         PlayerEntry data = plugin.getPlayerManager().getPlayerEntry(playerName);
 
@@ -2233,7 +2233,7 @@ public class StorageManager {
         Map<Vec, Field> working = new HashMap<>();
         Map<Unbreakable, Boolean> workingUb = new HashMap<>();
         Map<String, Boolean> workingPlayers = new HashMap<>();
-        Set<Field> workingGrief = new HashSet<Field>();
+        Set<Field> workingGrief = new HashSet<>();
         List<SnitchEntry> workingSnitchEntries = new ArrayList<>();
 
         synchronized (pending) {

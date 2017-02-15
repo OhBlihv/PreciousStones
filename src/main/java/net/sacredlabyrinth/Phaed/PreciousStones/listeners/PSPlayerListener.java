@@ -2,7 +2,11 @@ package net.sacredlabyrinth.Phaed.PreciousStones.listeners;
 
 import net.sacredlabyrinth.Phaed.PreciousStones.PreciousStones;
 import net.sacredlabyrinth.Phaed.PreciousStones.blocks.TargetBlock;
-import net.sacredlabyrinth.Phaed.PreciousStones.entries.*;
+import net.sacredlabyrinth.Phaed.PreciousStones.entries.BlockTypeEntry;
+import net.sacredlabyrinth.Phaed.PreciousStones.entries.FieldSign;
+import net.sacredlabyrinth.Phaed.PreciousStones.entries.ForesterEntry;
+import net.sacredlabyrinth.Phaed.PreciousStones.entries.PlayerEntry;
+import net.sacredlabyrinth.Phaed.PreciousStones.entries.PurchaseEntry;
 import net.sacredlabyrinth.Phaed.PreciousStones.field.Field;
 import net.sacredlabyrinth.Phaed.PreciousStones.field.FieldFlag;
 import net.sacredlabyrinth.Phaed.PreciousStones.helpers.ChatHelper;
@@ -10,10 +14,18 @@ import net.sacredlabyrinth.Phaed.PreciousStones.helpers.Helper;
 import net.sacredlabyrinth.Phaed.PreciousStones.helpers.SignHelper;
 import net.sacredlabyrinth.Phaed.PreciousStones.helpers.StackHelper;
 import net.sacredlabyrinth.Phaed.PreciousStones.modules.BuyingModule;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.ThrownPotion;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -21,7 +33,24 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityPortalExitEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.event.player.PlayerBucketEmptyEvent;
+import org.bukkit.event.player.PlayerBucketFillEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerGameModeChangeEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
+import org.bukkit.event.player.PlayerPortalEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
+import org.bukkit.event.player.PlayerToggleSprintEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -31,6 +60,7 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * PreciousStones player listener
@@ -82,31 +112,44 @@ public class PSPlayerListener implements Listener {
     /**
      * @param event
      */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerPreJoin(AsyncPlayerPreLoginEvent event) {
+	    final String playerName = event.getName();
+	    final UUID playerUuid = event.getUniqueId();
+
+	    plugin.getPlayerManager().playerLogin(playerName, playerUuid);
+	    plugin.getStorageManager().offerPlayer(playerName);
+    }
+
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerJoin(PlayerJoinEvent event) {
-        final Player player = event.getPlayer();
-        final String playerName = event.getPlayer().getName();
+	public void onPlayerJoin(PlayerJoinEvent event) {
+	    final Player player = event.getPlayer();
+	    final String playerName = player.getName();
 
-        plugin.getPlayerManager().playerLogin(player);
-        plugin.getStorageManager().offerPlayer(playerName);
+	    Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable()
+	    {
 
-        plugin.getEntryManager().reevaluateEnteredFields(player);
+		    @Override
+		    public void run()
+		    {
+			    plugin.getEntryManager().reevaluateEnteredFields(player);
 
-        plugin.getForceFieldManager().enableFieldsOnLogon(playerName);
-        plugin.getForceFieldManager().removeFieldsIfNoPermission(playerName);
+			    plugin.getForceFieldManager().enableFieldsOnLogon(playerName);
+			    plugin.getForceFieldManager().removeFieldsIfNoPermission(playerName);
 
-        List<PurchaseEntry> purchases = plugin.getStorageManager().getPendingPurchases(playerName);
+			    for (PurchaseEntry purchase : plugin.getStorageManager().getPendingPurchases(playerName)) {
+				    new BuyingModule().giveMoney(player, purchase);
+				    plugin.getStorageManager().deletePendingPurchasePayment(purchase);
+			    }
 
-        for (PurchaseEntry purchase : purchases) {
-            new BuyingModule().giveMoney(player, purchase);
-            plugin.getStorageManager().deletePendingPurchasePayment(purchase);
-        }
+			    if (player.isOp()) {
+				    for (String message : plugin.getMessages()) {
+					    player.sendMessage(ChatColor.YELLOW + message);
+				    }
+			    }
+		    }
 
-        if (event.getPlayer().isOp()) {
-            for (String message : plugin.getMessages()) {
-                event.getPlayer().sendMessage(ChatColor.YELLOW + message);
-            }
-        }
+	    });
     }
 
     /**

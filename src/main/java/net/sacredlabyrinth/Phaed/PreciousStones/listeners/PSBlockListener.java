@@ -400,41 +400,37 @@ public class PSBlockListener implements Listener {
         field = plugin.getForceFieldManager().getEnabledSourceField(block.getLocation(), FieldFlag.GRIEF_REVERT);
 
         if (field != null) {
-            if (!plugin.getPermissionsManager().lwcProtected(player, block)) {
-                if (!plugin.getPermissionsManager().locketteProtected(player, block)) {
-                    if (FieldFlag.GRIEF_REVERT.applies(field, player)) {
-                        if (plugin.getPermissionsManager().has(player, "preciousstones.bypass.destroy") || field.getSettings().canGrief(new BlockTypeEntry(block))) {
-                            PreciousStones.debug("bypassed");
-
-                            if (field.getSettings().canGrief(new BlockTypeEntry(block))) {
-                                PreciousStones.debug("can-grief");
-                            }
-
-                            plugin.getCommunicationManager().notifyBypassDestroy(player, block, field);
-                            plugin.getStorageManager().deleteBlockGrief(block);
-                            return;
-                        } else {
-                            PreciousStones.debug("is grief");
-
-                            if (!plugin.getSettingsManager().isGriefUndoBlackListType(block.getTypeId())) {
-                                PreciousStones.debug("adding block");
-
-                                boolean clear = !field.hasFlag(FieldFlag.GRIEF_REVERT_DROP);
-
-                                plugin.getGriefUndoManager().addBlock(field, block, clear);
-                                plugin.getStorageManager().offerGrief(field);
-
-                                if (clear) {
-                                    PreciousStones.debug("cleared");
-                                    event.setCancelled(true);
-                                }
-                            }
-                        }
-                    } else {
-                        plugin.getStorageManager().deleteBlockGrief(block);
-                    }
-                }
-            }
+	        if (FieldFlag.GRIEF_REVERT.applies(field, player)) {
+		        if (plugin.getPermissionsManager().has(player, "preciousstones.bypass.destroy") || field.getSettings().canGrief(new BlockTypeEntry(block))) {
+			        PreciousStones.debug("bypassed");
+			
+			        if (field.getSettings().canGrief(new BlockTypeEntry(block))) {
+				        PreciousStones.debug("can-grief");
+			        }
+			
+			        plugin.getCommunicationManager().notifyBypassDestroy(player, block, field);
+			        plugin.getStorageManager().deleteBlockGrief(block);
+			        return;
+		        } else {
+			        PreciousStones.debug("is grief");
+			
+			        if (!plugin.getSettingsManager().isGriefUndoBlackListType(block.getTypeId())) {
+				        PreciousStones.debug("adding block");
+				
+				        boolean clear = !field.hasFlag(FieldFlag.GRIEF_REVERT_DROP);
+				
+				        plugin.getGriefUndoManager().addBlock(field, block, clear);
+				        plugin.getStorageManager().offerGrief(field);
+				
+				        if (clear) {
+					        PreciousStones.debug("cleared");
+					        event.setCancelled(true);
+				        }
+			        }
+		        }
+	        } else {
+		        plugin.getStorageManager().deleteBlockGrief(block);
+	        }
         }
 
         // -------------------------------------------------------------------------------- breaking inside a translocation revert area

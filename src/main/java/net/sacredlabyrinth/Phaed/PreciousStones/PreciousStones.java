@@ -63,7 +63,6 @@ public class PreciousStones extends JavaPlugin {
     private PSServerListener serverListener;
     private PSInventoryListener inventoryListener;
     private McMMOListener mcmmoListener;
-    private LWCListener lwcListener;
     private static IApi api;
 
     /**
@@ -166,10 +165,6 @@ public class PreciousStones extends JavaPlugin {
 
         if (permissionsManager.hasMcMMO()) {
             mcmmoListener = new McMMOListener();
-        }
-
-        if (permissionsManager.hasLWC()) {
-            lwcListener = new LWCListener();
         }
 
         api = new Api();

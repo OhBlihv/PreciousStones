@@ -1,9 +1,6 @@
 package net.sacredlabyrinth.Phaed.PreciousStones.managers;
 
 import com.gmail.nossr50.mcMMO;
-import com.griefcraft.lwc.LWC;
-import com.griefcraft.lwc.LWCPlugin;
-import com.griefcraft.model.Protection;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 import com.platymuus.bukkit.permissions.Group;
@@ -23,7 +20,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
-import org.yi.acru.bukkit.Lockette.Lockette;
 import ru.tehkode.permissions.PermissionUser;
 import ru.tehkode.permissions.bukkit.PermissionsEx;
 
@@ -39,8 +35,6 @@ public final class PermissionsManager {
     private PermissionHandler handler = null;
     private PermissionsPlugin pbukkit = null;
     private PermissionsEx pex = null;
-    private LWC lwc = null;
-    private Lockette lockette = null;
     private PreciousStones plugin;
     private mcMMO mcmmo = null;
 
@@ -52,8 +46,6 @@ public final class PermissionsManager {
         detectPermissionsBukkit();
         detectPermissionsEx();
         detectPermissions();
-        detectLWC();
-        detectLockette();
         detectMcMMO();
 
         try {
@@ -72,22 +64,6 @@ public final class PermissionsManager {
 
         if (plug != null) {
             mcmmo = ((mcMMO) plug);
-        }
-    }
-
-    private void detectLWC() {
-        Plugin plug = plugin.getServer().getPluginManager().getPlugin("LWC");
-
-        if (plug != null) {
-            lwc = ((LWCPlugin) plug).getLWC();
-        }
-    }
-
-    private void detectLockette() {
-        Plugin plug = plugin.getServer().getPluginManager().getPlugin("Lockette");
-
-        if (plug != null) {
-            lockette = ((Lockette) plug);
         }
     }
 
@@ -404,39 +380,8 @@ public final class PermissionsManager {
         return economy.has(playerName, amount);
     }
 
-    public boolean lwcProtected(Player player, Block block) {
-        if (lwc == null) {
-            return false;
-        }
-
-        Protection protection = lwc.findProtection(block);
-
-        if (protection != null) {
-            return !lwc.canAccessProtection(player, block);
-        }
-
-        return false;
-    }
-
-    public boolean locketteProtected(Player player, Block block) {
-        if (lockette == null) {
-            return false;
-        }
-
-        if (Lockette.isProtected(block)) {
-            String owner = Lockette.getProtectedOwner(block);
-            return !owner.equalsIgnoreCase(player.getName());
-        }
-
-        return false;
-    }
-
     public boolean hasMcMMO() {
         return mcmmo != null;
-    }
-
-    public boolean hasLWC() {
-        return lwc != null;
     }
 
     public boolean isVanished(Player player) {

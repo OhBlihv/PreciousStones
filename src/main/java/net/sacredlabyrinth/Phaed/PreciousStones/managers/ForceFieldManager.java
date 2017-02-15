@@ -99,7 +99,7 @@ public final class ForceFieldManager {
 
         // check if in worldguard region
 
-        if (!plugin.getWorldGuardManager().canBuildField(player, fieldBlock, fs)) {
+        if (!plugin.getPermissionsManager().canBuildField(player, fieldBlock, fs)) {
             ChatHelper.send(player, "fieldIntersectsWG");
             event.setCancelled(true);
             return;
@@ -116,6 +116,7 @@ public final class ForceFieldManager {
 
         if (!plugin.getPermissionsManager().has(player, "preciousstones.bypass.purchase")) {
             if (fs.getPrice() > 0 && !purchase(player, fs.getPrice())) {
+                event.setCancelled(true);
                 return;
             }
         }
@@ -275,7 +276,7 @@ public final class ForceFieldManager {
 
         // allow all owners of intersecting fields into the field
 
-        plugin.getForceFieldManager().addAllowOverlappingOwners(field);
+        addAllowOverlappingOwners(field);
 
         // start disabling process for auto-disable fields
 
@@ -1124,7 +1125,7 @@ public final class ForceFieldManager {
 
                     Block surroundingBlock = block.getWorld().getBlockAt(block.getX() + x, block.getY() + y, block.getZ() + z);
 
-                    if (plugin.getForceFieldManager().isField(surroundingBlock)) {
+                    if (isField(surroundingBlock)) {
                         return surroundingBlock;
                     }
                 }
@@ -1302,9 +1303,9 @@ public final class ForceFieldManager {
      * @param target
      * @return whether he got allowed
      */
-    public boolean addAllowed(Field field, String target) {
+    public boolean addAllowed(Field field, String target, boolean isGuest) {
         if (!field.isInAllowedList(target)) {
-            field.addAllowed(target);
+            field.addAllowed(target, isGuest);
             plugin.getStorageManager().offerField(field);
             List<Field> allowed = fieldsByAllowed.get(target);
             if (allowed == null) {
@@ -1349,7 +1350,7 @@ public final class ForceFieldManager {
      * @param allowedName
      * @return count of fields allowed
      */
-    public int allowAll(Player player, String allowedName) {
+    public int allowAll(Player player, String allowedName, boolean isGuest) {
         List<Field> fields = getOwnersFields(player, FieldFlag.ALL);
 
         int allowedCount = 0;
@@ -1372,7 +1373,7 @@ public final class ForceFieldManager {
             }
 
             if (!isAllowed(field, allowedName)) {
-                if (addAllowed(field, allowedName)) {
+                if (addAllowed(field, allowedName, isGuest)) {
                     allowedCount++;
                 }
             }
@@ -1434,7 +1435,7 @@ public final class ForceFieldManager {
     }
 
     /**
-     * Remove allowed player to all your force fields
+     * Remove allowed player from all your force fields
      *
      * @param player
      * @param target
@@ -1461,12 +1462,14 @@ public final class ForceFieldManager {
                 }
             }
 
-            int conflicted = plugin.getForceFieldManager().removeConflictingFields(field, target);
+            /*
+            int conflicted = removeConflictingFields(field, target);
 
             if (conflicted > 0) {
                 ChatHelper.send(player, "removedConflictingFields", conflicted, target);
                 continue;
             }
+            */
 
             if (isAllowed(field, target)) {
                 if (removeAllowed(field, target)) {
@@ -1872,7 +1875,7 @@ public final class ForceFieldManager {
      * @param player
      * @return the field
      */
-    public Field getPointedField(Player player) {
+    public Field getPointedField(Player player, boolean allowed) {
         TargetBlock aiming = new TargetBlock(player, plugin.getSettingsManager().getMaxTargetDistance(), 0.2, plugin.getSettingsManager().getThroughFieldsSet());
         Block targetBlock = aiming.getTargetBlock();
 
@@ -1882,6 +1885,10 @@ public final class ForceFieldManager {
             if (f != null) {
                 if (f.isChild()) {
                     f = f.getParent();
+                }
+
+                if (!allowed) {
+                    return f;
                 }
 
                 if (isAllowed(f, player.getName())) {
@@ -1901,7 +1908,7 @@ public final class ForceFieldManager {
      * @return the field
      */
     public Field getOneAllowedField(final Block blockInArea, final Player player, FieldFlag flag) {
-        Field pointed = getPointedField(player);
+        Field pointed = getPointedField(player, true);
 
         if (pointed != null) {
             return pointed;
@@ -1931,7 +1938,7 @@ public final class ForceFieldManager {
      * @return the field
      */
     public Field getOneOwnedField(final Block blockInArea, final Player player, FieldFlag flag) {
-        Field pointed = getPointedField(player);
+        Field pointed = getPointedField(player, true);
 
         if (pointed != null) {
             return pointed;
@@ -1960,7 +1967,7 @@ public final class ForceFieldManager {
      * @return the field
      */
     public Field getOneNonOwnedField(final Block blockInArea, final Player player, FieldFlag flag) {
-        Field pointed = getPointedField(player);
+        Field pointed = getPointedField(player, false);
 
         if (pointed != null) {
             return pointed;
@@ -1989,7 +1996,7 @@ public final class ForceFieldManager {
      * @return the field
      */
     public Field getOneField(final Block blockInArea, final Player player, FieldFlag flag) {
-        Field pointed = getPointedField(player);
+        Field pointed = getPointedField(player, true);
 
         if (pointed != null) {
             return pointed;
@@ -3016,7 +3023,7 @@ public final class ForceFieldManager {
 
         // allow all owners of intersecting fields into the field
 
-        plugin.getForceFieldManager().addAllowOverlappingOwners(field);
+        addAllowOverlappingOwners(field);
 
         // start disabling process for auto-disable fields
 
